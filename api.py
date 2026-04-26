@@ -57,76 +57,90 @@ class CustomerInput(BaseModel):
 
 def preprocess_input(data: CustomerInput) -> pd.DataFrame:
     """Convert input to model-ready dataframe"""
-    
-    input_dict = {
-        'gender': data.gender,
+
+    # Hardcoded mappings
+    encoding_maps = {
+        'gender': {'Female': 0, 'Male': 1},
+        'MultipleLines': {'No': 0, 'No phone service': 1, 'Yes': 2},
+        'InternetService': {'DSL': 0, 'Fiber optic': 1, 'No': 2},
+        'OnlineSecurity': {'No': 0, 'No internet service': 1, 'Yes': 2},
+        'OnlineBackup': {'No': 0, 'No internet service': 1, 'Yes': 2},
+        'DeviceProtection': {'No': 0, 'No internet service': 1, 'Yes': 2},
+        'TechSupport': {'No': 0, 'No internet service': 1, 'Yes': 2},
+        'StreamingTV': {'No': 0, 'No internet service': 1, 'Yes': 2},
+        'StreamingMovies': {'No': 0, 'No internet service': 1, 'Yes': 2},
+        'Contract': {'Month-to-month': 0, 'One year': 1, 'Two year': 2},
+        'PaymentMethod': {
+            'Bank transfer (automatic)': 0,
+            'Credit card (automatic)': 1,
+            'Electronic check': 2,
+            'Mailed check': 3
+        }
+    }
+
+    # Step 1: Binary engineered features using original string values
+    ml = data.MultipleLines
+    is_val = data.InternetService
+
+    multilines_bin = 1 if ml == 'Yes' else 0
+    internet_bin = 1 if is_val in ['Fiber optic', 'DSL'] else 0
+    security_bin = 1 if data.OnlineSecurity == 'Yes' else 0
+    backup_bin = 1 if data.OnlineBackup == 'Yes' else 0
+    device_bin = 1 if data.DeviceProtection == 'Yes' else 0
+    tech_bin = 1 if data.TechSupport == 'Yes' else 0
+    tv_bin = 1 if data.StreamingTV == 'Yes' else 0
+    movies_bin = 1 if data.StreamingMovies == 'Yes' else 0
+
+    num_services = (data.PhoneService + multilines_bin + internet_bin +
+                    security_bin + backup_bin + device_bin +
+                    tech_bin + tv_bin + movies_bin)
+
+    # Step 2: Encode categorical columns using hardcoded maps
+    gender_enc = encoding_maps['gender'].get(data.gender, 0)
+    multilines_enc = encoding_maps['MultipleLines'].get(data.MultipleLines, 0)
+    internet_enc = encoding_maps['InternetService'].get(data.InternetService, 0)
+    security_enc = encoding_maps['OnlineSecurity'].get(data.OnlineSecurity, 0)
+    backup_enc = encoding_maps['OnlineBackup'].get(data.OnlineBackup, 0)
+    device_enc = encoding_maps['DeviceProtection'].get(data.DeviceProtection, 0)
+    tech_enc = encoding_maps['TechSupport'].get(data.TechSupport, 0)
+    tv_enc = encoding_maps['StreamingTV'].get(data.StreamingTV, 0)
+    movies_enc = encoding_maps['StreamingMovies'].get(data.StreamingMovies, 0)
+    contract_enc = encoding_maps['Contract'].get(data.Contract, 0)
+    payment_enc = encoding_maps['PaymentMethod'].get(data.PaymentMethod, 0)
+
+    # Step 3: Build final dataframe in exact training order
+    final_row = {
+        'gender': gender_enc,
         'SeniorCitizen': data.SeniorCitizen,
         'Partner': data.Partner,
         'Dependents': data.Dependents,
         'tenure': data.tenure,
         'PhoneService': data.PhoneService,
-        'MultipleLines': data.MultipleLines,
-        'InternetService': data.InternetService,
-        'OnlineSecurity': data.OnlineSecurity,
-        'OnlineBackup': data.OnlineBackup,
-        'DeviceProtection': data.DeviceProtection,
-        'TechSupport': data.TechSupport,
-        'StreamingTV': data.StreamingTV,
-        'StreamingMovies': data.StreamingMovies,
-        'Contract': data.Contract,
+        'MultipleLines': multilines_enc,
+        'InternetService': internet_enc,
+        'OnlineSecurity': security_enc,
+        'OnlineBackup': backup_enc,
+        'DeviceProtection': device_enc,
+        'TechSupport': tech_enc,
+        'StreamingTV': tv_enc,
+        'StreamingMovies': movies_enc,
+        'Contract': contract_enc,
         'PaperlessBilling': data.PaperlessBilling,
-        'PaymentMethod': data.PaymentMethod,
+        'PaymentMethod': payment_enc,
         'MonthlyCharges': data.MonthlyCharges,
-        'TotalCharges': data.TotalCharges
+        'TotalCharges': data.TotalCharges,
+        'MultipleLines_bin': multilines_bin,
+        'InternetService_bin': internet_bin,
+        'OnlineSecurity_bin': security_bin,
+        'OnlineBackup_bin': backup_bin,
+        'DeviceProtection_bin': device_bin,
+        'TechSupport_bin': tech_bin,
+        'StreamingTV_bin': tv_bin,
+        'StreamingMovies_bin': movies_bin,
+        'num_services': num_services
     }
-    
-    df = pd.DataFrame([input_dict])
-    
-    # Add engineered binary features
-    df['MultipleLines_bin'] = df['MultipleLines'].map(
-        {'Yes': 1, 'No': 0, 'No phone service': 0})
-    df['InternetService_bin'] = df['InternetService'].map(
-        {'Fiber optic': 1, 'DSL': 1, 'No': 0})
-    df['OnlineSecurity_bin'] = df['OnlineSecurity'].map(
-        {'Yes': 1, 'No': 0, 'No internet service': 0})
-    df['OnlineBackup_bin'] = df['OnlineBackup'].map(
-        {'Yes': 1, 'No': 0, 'No internet service': 0})
-    df['DeviceProtection_bin'] = df['DeviceProtection'].map(
-        {'Yes': 1, 'No': 0, 'No internet service': 0})
-    df['TechSupport_bin'] = df['TechSupport'].map(
-        {'Yes': 1, 'No': 0, 'No internet service': 0})
-    df['StreamingTV_bin'] = df['StreamingTV'].map(
-        {'Yes': 1, 'No': 0, 'No internet service': 0})
-    df['StreamingMovies_bin'] = df['StreamingMovies'].map(
-        {'Yes': 1, 'No': 0, 'No internet service': 0})
 
-    service_bin_cols = ['PhoneService', 'MultipleLines_bin', 'InternetService_bin',
-                        'OnlineSecurity_bin', 'OnlineBackup_bin', 'DeviceProtection_bin',
-                        'TechSupport_bin', 'StreamingTV_bin', 'StreamingMovies_bin']
-    df['num_services'] = df[service_bin_cols].sum(axis=1)
-
-    # Encode categorical columns
-    cat_cols = ['gender', 'MultipleLines', 'InternetService', 'OnlineSecurity',
-                'OnlineBackup', 'DeviceProtection', 'TechSupport',
-                'StreamingTV', 'StreamingMovies', 'Contract', 'PaymentMethod']
-    
-    from sklearn.preprocessing import LabelEncoder
-    le = LabelEncoder()
-    for col in cat_cols:
-        df[col] = le.fit_transform(df[col].astype(str))
-
-    # Reorder columns to exactly match training order
-    final_cols = ['gender', 'SeniorCitizen', 'Partner', 'Dependents', 'tenure',
-                  'PhoneService', 'MultipleLines', 'InternetService', 'OnlineSecurity',
-                  'OnlineBackup', 'DeviceProtection', 'TechSupport', 'StreamingTV',
-                  'StreamingMovies', 'Contract', 'PaperlessBilling', 'PaymentMethod',
-                  'MonthlyCharges', 'TotalCharges', 'MultipleLines_bin',
-                  'InternetService_bin', 'OnlineSecurity_bin', 'OnlineBackup_bin',
-                  'DeviceProtection_bin', 'TechSupport_bin', 'StreamingTV_bin',
-                  'StreamingMovies_bin', 'num_services']
-    
-    return df[final_cols]
-
+    return pd.DataFrame([final_row])
 
 def get_strategy(churn_prob: float, monthly_charges: float, tenure: int) -> dict:
     """Generate retention strategy based on prediction"""
@@ -261,3 +275,12 @@ def predict_batch(customers: list[CustomerInput]):
             results.append({"customer_index": i + 1, "error": str(e)})
     
     return {"total_customers": len(customers), "predictions": results}
+
+@app.post("/debug")
+def debug_input(customer: CustomerInput):
+    df = preprocess_input(customer)
+    return {
+        "received_input": customer.dict(),
+        "processed_features": df.iloc[0].to_dict(),
+        "prediction": float(model.predict_proba(df)[:, 1][0]) * 100
+    }
