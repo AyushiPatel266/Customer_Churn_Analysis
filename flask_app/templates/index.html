@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Churn Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="app">
+
+    <div class="topbar">
+        <div>
+            <h1>Customer Churn Predictor</h1>
+            <p>Enter customer details to predict churn risk and get a retention strategy</p>
+        </div>
+        <div class="topbar-badge">XGBoost Model v1.0</div>
+    </div>
+
+    <div class="two-col">
+
+        <div class="card">
+            <form method="POST" action="/predict">
+
+                <div class="section-label">Demographics</div>
+                <div class="field-row">
+                    <div class="field">
+                        <label>Gender</label>
+                        <select name="gender">
+                            <option value="Male" {% if form_data and form_data.gender == 'Male' %}selected{% endif %}>Male</option>
+                            <option value="Female" {% if form_data and form_data.gender == 'Female' %}selected{% endif %}>Female</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Senior Citizen</label>
+                        <select name="SeniorCitizen">
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="field-row">
+                    <div class="field">
+                        <label>Partner</label>
+                        <select name="Partner">
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Dependents</label>
+                        <select name="Dependents">
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="field-row">
+                    <div class="field">
+                        <label>Tenure (months)</label>
+                        <input type="number" name="tenure" min="0" max="72"
+                               value="{{ form_data.tenure if form_data else '12' }}">
+                    </div>
+                    <div class="field">
+                        <label>Contract Type</label>
+                        <select name="Contract">
+                            <option value="Month-to-month">Month-to-month</option>
+                            <option value="One year">One Year</option>
+                            <option value="Two year">Two Year</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="section-label">Services</div>
+                <div class="field-row">
+                    <div class="field">
+                        <label>Internet Service</label>
+                        <select name="InternetService">
+                            <option value="Fiber optic">Fiber Optic</option>
+                            <option value="DSL">DSL</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Phone Service</label>
+                        <select name="PhoneService">
+                            <option value="1">Yes</option>
+                            <option value="0">No</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="field-row">
+                    <div class="field">
+                        <label>Multiple Lines</label>
+                        <select name="MultipleLines">
+                            <option value="No">No</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No phone service">No Phone Service</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Online Security</label>
+                        <select name="OnlineSecurity">
+                            <option value="No">No</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No internet service">No Internet Service</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="field-row">
+                    <div class="field">
+                        <label>Online Backup</label>
+                        <select name="OnlineBackup">
+                            <option value="No">No</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No internet service">No Internet Service</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Device Protection</label>
+                        <select name="DeviceProtection">
+                            <option value="No">No</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No internet service">No Internet Service</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="field-row">
+                    <div class="field">
+                        <label>Tech Support</label>
+                        <select name="TechSupport">
+                            <option value="No">No</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No internet service">No Internet Service</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Streaming TV</label>
+                        <select name="StreamingTV">
+                            <option value="No">No</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No internet service">No Internet Service</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="field-row">
+                    <div class="field">
+                        <label>Streaming Movies</label>
+                        <select name="StreamingMovies">
+                            <option value="No">No</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No internet service">No Internet Service</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="section-label">Billing</div>
+                <div class="field-row">
+                    <div class="field">
+                        <label>Monthly Charges ($)</label>
+                        <input type="number" name="MonthlyCharges" step="0.01" min="0"
+                               value="{{ form_data.MonthlyCharges if form_data else '65.00' }}">
+                    </div>
+                    <div class="field">
+                        <label>Total Charges ($)</label>
+                        <input type="number" name="TotalCharges" step="0.01" min="0"
+                               value="{{ form_data.TotalCharges if form_data else '780.00' }}">
+                    </div>
+                </div>
+                <div class="field-row">
+                    <div class="field">
+                        <label>Payment Method</label>
+                        <select name="PaymentMethod">
+                            <option value="Electronic check">Electronic Check</option>
+                            <option value="Mailed check">Mailed Check</option>
+                            <option value="Bank transfer (automatic)">Bank Transfer</option>
+                            <option value="Credit card (automatic)">Credit Card</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Paperless Billing</label>
+                        <select name="PaperlessBilling">
+                            <option value="1">Yes</option>
+                            <option value="0">No</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="predict-btn">Predict Churn Risk</button>
+            </form>
+        </div>
+
+        <div class="right-col">
+
+            {% if result %}
+
+            {% set risk = result.risk_level | lower %}
+            {% set prob = result.churn_probability %}
+
+            <div class="result-card">
+                <div class="result-top">
+                    <div>
+                        <div class="result-prob-label">Churn Probability</div>
+                        <div class="result-prob-value prob-{{ risk }}">{{ prob }}%</div>
+                    </div>
+                    <div class="risk-pill risk-{{ risk }}">{{ result.risk_level }} Risk</div>
+                </div>
+
+                <div class="metrics-row">
+                    <div class="metric-box">
+                        <div class="metric-label">Prediction</div>
+                        <div class="metric-value" style="font-size:13px; margin-top:4px;
+                            color: {% if result.churn_prediction == 'Will Churn' %}#E24B4A{% else %}#639922{% endif %}">
+                            {{ result.churn_prediction }}
+                        </div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">Projected CLV</div>
+                        <div class="metric-value">${{ result.projected_12m_clv }}</div>
+                        <div class="metric-sub">12 months</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">Risk Score</div>
+                        <div class="metric-value">
+                            {{ (prob / 10) | round(1) }}<span class="metric-sub">/10</span>
+                        </div>
+                        <div class="progress-wrap">
+                            <div class="progress-fill" style="width: {{ prob }}%;
+                                background: {% if prob > 70 %}#E24B4A{% elif prob > 40 %}#EF9F27{% else %}#639922{% endif %}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="strategy-box strategy-{{ risk }}">
+                    <div class="strategy-tag">Retention Strategy</div>
+                    <div class="strategy-name">{{ result.strategy.quadrant }}</div>
+                    <div class="strategy-desc">{{ result.strategy.action }}</div>
+                    <div class="strategy-budget"><strong>Budget:</strong> {{ result.strategy.budget_recommendation }}</div>
+                </div>
+            </div>
+
+            <div class="drivers-card">
+                <div class="drivers-title">Key Churn Drivers</div>
+                <div class="driver-row">
+                    <span class="driver-name">Contract type</span>
+                    <div class="driver-bar-wrap"><div class="driver-bar" style="width:90%;background:#E24B4A"></div></div>
+                    <span class="driver-impact" style="color:#E24B4A">High</span>
+                </div>
+                <div class="driver-row">
+                    <span class="driver-name">Tenure</span>
+                    <div class="driver-bar-wrap"><div class="driver-bar" style="width:75%;background:#E24B4A"></div></div>
+                    <span class="driver-impact" style="color:#E24B4A">High</span>
+                </div>
+                <div class="driver-row">
+                    <span class="driver-name">Monthly charges</span>
+                    <div class="driver-bar-wrap"><div class="driver-bar" style="width:60%;background:#EF9F27"></div></div>
+                    <span class="driver-impact" style="color:#EF9F27">Med</span>
+                </div>
+                <div class="driver-row">
+                    <span class="driver-name">Internet service</span>
+                    <div class="driver-bar-wrap"><div class="driver-bar" style="width:55%;background:#EF9F27"></div></div>
+                    <span class="driver-impact" style="color:#EF9F27">Med</span>
+                </div>
+                <div class="driver-row">
+                    <span class="driver-name">Num services</span>
+                    <div class="driver-bar-wrap"><div class="driver-bar" style="width:35%;background:#639922"></div></div>
+                    <span class="driver-impact" style="color:#639922">Low</span>
+                </div>
+            </div>
+
+            {% elif error %}
+            <div class="card">
+                <div class="error-box"><strong>Error:</strong> {{ error }}</div>
+            </div>
+
+            {% else %}
+            <div class="card">
+                <div class="empty-state">
+                    <div class="empty-icon">&#9685;</div>
+                    <div class="empty-text">Fill in customer details and click<br>Predict Churn Risk to see results</div>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+</body>
+</html>
