@@ -3,7 +3,7 @@ import requests
 
 app = Flask(__name__)
 
-FASTAPI_URL = "http://127.0.0.1:8000"
+FASTAPI_URL = "https://customer-churn-api.onrender.com"
 
 @app.route('/')
 def index():
