@@ -47,16 +47,18 @@ Enter any customer profile into the web interface and get back:
 
 ## Project Architecture
 
+```
 User (Browser)
-   |
-   v
-Flask Frontend (customer-churn-flask-og46.onrender.com)
-   |
-   v
-FastAPI Backend (customer-churn-api-spcg.onrender.com)
-   |
-   v
-XGBoost Model (trained on 7,043 customers)
+   ↓
+Flask Frontend  
+(customer-churn-flask-og46.onrender.com)
+   ↓
+FastAPI Backend  
+(customer-churn-api-spcg.onrender.com)
+   ↓
+XGBoost Model  
+(trained on 7,043 customers)
+```
 
 ---
 
@@ -130,6 +132,7 @@ and where not to waste resources.
 
 ## Project Structure
 
+```
 customer_churn_analysis/
 │
 ├── notebooks/
@@ -158,6 +161,7 @@ customer_churn_analysis/
 ├── requirements.txt
 ├── render.yaml
 └── README.md
+```
 
 ---
 
@@ -194,7 +198,9 @@ pip install -r requirements.txt
 Download from Kaggle link above and place in `data/raw/Telco_churn.csv`
 
 **4. Run notebooks in order**
+
 01 → 02 → 03 → 04 → 05
+
 **5. Start FastAPI backend**
 ```bash
 uvicorn api:app --reload
