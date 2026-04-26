@@ -37,7 +37,7 @@ that a marketing or product team can act on immediately.
 
 ## Live Demo
 
-![App Screenshot](reports/17_retention_strategy_matrix.png)
+![App Screenshot](reports/Screenshot.png)
 
 Enter any customer profile into the web interface and get back:
 - Churn probability with risk level (Low / Medium / High / Critical)
@@ -45,13 +45,19 @@ Enter any customer profile into the web interface and get back:
 - Retention strategy with budget recommendation
 - Key churn drivers visualized
 
+## Project Architecture
+
 User (Browser)
-↓
-Flask Frontend (customer-churn-flask-og46.onrender.com)
-↓
-FastAPI Backend (customer-churn-api-spcg.onrender.com)
-↓
-XGBoost Model (trained on 7,043 customers)
+   ↓
+Flask Frontend  
+(customer-churn-flask-og46.onrender.com)
+   ↓
+FastAPI Backend  
+(customer-churn-api-spcg.onrender.com)
+   ↓
+XGBoost Model  
+(trained on 7,043 customers)
+
 ---
 
 ## Five Notebook Pipeline
@@ -123,6 +129,7 @@ and where not to waste resources.
 ---
 
 ## Project Structure
+
 customer_churn_analysis/
 │
 ├── notebooks/
@@ -151,6 +158,7 @@ customer_churn_analysis/
 ├── requirements.txt
 ├── render.yaml
 └── README.md
+
 ---
 
 ## Dataset
@@ -199,7 +207,9 @@ python app.py
 ```
 
 **7. Open in browser**
+
 http://127.0.0.1:5000
+
 ---
 
 ## API Usage
@@ -269,4 +279,4 @@ curl -X POST "https://customer-churn-api-spcg.onrender.com/predict" \
 - Live App: [customer-churn-flask-og46.onrender.com](https://customer-churn-flask-og46.onrender.com)
 ---
 
-## Project Architecture
+
