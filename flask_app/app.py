@@ -3,7 +3,7 @@ import requests
 
 app = Flask(__name__)
 
-FASTAPI_URL = "https://customer-churn-api.onrender.com"
+FASTAPI_URL = "https://customer-churn-api-spcg.onrender.com"
 
 def wake_up_api():
     """Wake up the FastAPI server if it is sleeping"""
