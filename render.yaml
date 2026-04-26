@@ -7,3 +7,13 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.10.0
+
+  - type: web
+    name: customer-churn-flask
+    env: python
+    rootDir: flask_app
+    buildCommand: pip install -r requirements_flask.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.0
