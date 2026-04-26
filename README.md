@@ -48,15 +48,15 @@ Enter any customer profile into the web interface and get back:
 ## Project Architecture
 
 User (Browser)
-   ↓
-Flask Frontend  
-(customer-churn-flask-og46.onrender.com)
-   ↓
-FastAPI Backend  
-(customer-churn-api-spcg.onrender.com)
-   ↓
-XGBoost Model  
-(trained on 7,043 customers)
+   |
+   v
+Flask Frontend (customer-churn-flask-og46.onrender.com)
+   |
+   v
+FastAPI Backend (customer-churn-api-spcg.onrender.com)
+   |
+   v
+XGBoost Model (trained on 7,043 customers)
 
 ---
 
