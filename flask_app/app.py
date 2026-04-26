@@ -5,6 +5,13 @@ app = Flask(__name__)
 
 FASTAPI_URL = "https://customer-churn-api.onrender.com"
 
+def wake_up_api():
+    """Wake up the FastAPI server if it is sleeping"""
+    try:
+        requests.get(f"{FASTAPI_URL}/health", timeout=30)
+    except:
+        pass
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -12,6 +19,7 @@ def index():
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
+        wake_up_api()
         form = request.form
         
         customer_data = {
@@ -36,7 +44,7 @@ def predict():
             "TotalCharges": float(form.get('TotalCharges'))
         }
 
-        response = requests.post(f"{FASTAPI_URL}/predict", json=customer_data)
+        response = requests.post(f"{FASTAPI_URL}/predict", json=customer_data, timeout=60)
         result = response.json()
         
         return render_template('index.html', result=result, form_data=form)
