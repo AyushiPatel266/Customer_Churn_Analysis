@@ -106,13 +106,18 @@ XGBoost Model
 
 | Model | AUC-ROC | F1 Score | Recall |
 |-------|---------|----------|--------|
-| Logistic Regression | ~0.84 | ~0.62 | ~0.78 |
-| Random Forest | ~0.87 | ~0.65 | ~0.79 |
-| XGBoost (final) | ~0.89 | ~0.68 | ~0.82 |
+| Logistic Regression | 0.831 | 0.611 | 0.658 |
+| Random Forest | 0.817 | 0.583 | 0.580 |
+| XGBoost (deployed) | 0.834 | 0.586 | 0.626 |
 
 Threshold was tuned based on business cost rather than F1 score alone.
 A false negative (missed churner) costs approximately 10x more than a
 false positive (unnecessary retention offer).
+
+Note: Logistic Regression showed competitive performance on F1 and Recall,
+which is expected given that churn in this dataset is driven by strong linear 
+predictors (contract type, tenure). XGBoost was selected for deployment due to 
+marginally better AUC and superior SHAP-based explainability for business stakeholders.
 
 ---
 
