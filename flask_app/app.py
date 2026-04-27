@@ -1,13 +1,14 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request
 import requests
 import time
-
 import os
-app = Flask(__name__, 
+
+app = Flask(__name__,
             template_folder=os.path.join(os.path.dirname(__file__), 'templates'),
             static_folder=os.path.join(os.path.dirname(__file__), 'static'))
 
 FASTAPI_URL = "https://customer-churn-api-spcg.onrender.com"
+
 
 def wake_up_api():
     """Wake up FastAPI and wait until it is ready"""
@@ -21,18 +22,23 @@ def wake_up_api():
             time.sleep(5)
     return False
 
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
-        # Wake up API and wait for it
         api_ready = wake_up_api()
         if not api_ready:
             return render_template('index.html',
                 error="Server is waking up. Please wait 30 seconds and try again.")
 
         form = request.form
+
         customer_data = {
-            # your existing code stays the same
             "gender": form.get('gender'),
             "SeniorCitizen": int(form.get('SeniorCitizen')),
             "Partner": int(form.get('Partner')),
@@ -65,3 +71,7 @@ def predict():
     except Exception as e:
         return render_template('index.html', error=str(e))
 
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=False, host='0.0.0.0', port=port)
