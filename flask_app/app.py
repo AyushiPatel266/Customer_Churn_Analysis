@@ -12,14 +12,14 @@ FASTAPI_URL = "https://customer-churn-api-spcg.onrender.com"
 
 def wake_up_api():
     """Wake up FastAPI and wait until it is ready"""
-    max_attempts = 3
+    max_attempts = 5
     for attempt in range(max_attempts):
         try:
-            response = requests.get(f"{FASTAPI_URL}/health", timeout=30)
+            response = requests.get(f"{FASTAPI_URL}/health", timeout=60)
             if response.status_code == 200:
                 return True
         except:
-            time.sleep(5)
+            time.sleep(10)
     return False
 
 
