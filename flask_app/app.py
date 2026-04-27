@@ -2,7 +2,10 @@ from flask import Flask, render_template, request, jsonify
 import requests
 import time
 
-app = Flask(__name__)
+import os
+app = Flask(__name__, 
+            template_folder=os.path.join(os.path.dirname(__file__), 'templates'),
+            static_folder=os.path.join(os.path.dirname(__file__), 'static'))
 
 FASTAPI_URL = "https://customer-churn-api-spcg.onrender.com"
 
